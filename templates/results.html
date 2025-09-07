@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocialHunter - Search Results for {{ results.username }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+        }
+        .results-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            margin: 2rem 0;
+        }
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.4s ease;
+            border-left: 5px solid #28a745;
+            position: relative;
+            overflow: hidden;
+        }
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #28a745, #20c997);
+        }
+        .result-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            border-left-color: #20c997;
+        }
+        .site-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .site-favicon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            margin-right: 1rem;
+            border: 3px solid #667eea;
+            background: #f8f9fa;
+            object-fit: cover;
+        }
+        .site-name {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.2rem;
+            margin: 0;
+        }
+        .site-url {
+            color: #667eea;
+            text-decoration: none;
+            word-break: break-all;
+            font-size: 0.9rem;
+            background: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 8px;
+            display: block;
+            margin: 0.5rem 0;
+            transition: all 0.3s ease;
+        }
+        .site-url:hover {
+            background: #e9ecef;
+            color: #495057;
+            text-decoration: none;
+        }
+        .visit-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .visit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+        .results-grid {
+            display: grid;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .search-stats {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .stats-card {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .back-btn {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            transform: translateY(-2px);
+            color: white;
+            text-decoration: none;
+        }
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+        .error-message {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+        }
+        .developer-credit {
+            text-align: center;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+        }
+        .developer-credit a {
+            color: #E4405F;
+            margin-left: 0.5rem;
+        }
+        .developer-credit a:hover {
+            color: #C13584;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-8">
+                <div class="results-container">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="logo">
+                            <i class="fas fa-crosshairs"></i> SocialHunter
+                        </div>
+                        <a href="/" class="back-btn">
+                            <i class="fas fa-arrow-left"></i> New Search
+                        </a>
+                    </div>
+                    
+                    {% if results.status == 'success' %}
+                        <div class="stats-card">
+                            <h2><i class="fas fa-user"></i> {{ results.username }}</h2>
+                            <div class="row mt-3">
+                                <div class="col-md-4">
+                                    <h3>{{ results.total_found }}</h3>
+                                    <p>Accounts Found</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <h3><i class="fas fa-clock"></i></h3>
+                                    <p>{{ results.search_time }}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <h3><i class="fas fa-check-circle"></i></h3>
+                                    <p>Search Complete</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if results.found_sites %}
+                            <div class="search-stats">
+                                <h4><i class="fas fa-trophy"></i> Found {{ results.total_found }} Accounts!</h4>
+                                <p class="mb-0">Username "{{ results.username }}" was discovered across these platforms</p>
+                            </div>
+                            
+                            <div class="results-grid">
+                                {% for site in results.found_sites %}
+                                    <div class="result-card">
+                                        <div class="site-info">
+                                            <img src="{{ site.profile_image }}" alt="{{ results.username }} profile on {{ site.site }}" class="site-favicon" 
+                                                 onerror="this.src='{{ site.fallback_image }}'">
+                                            <div>
+                                                <h5 class="site-name">{{ site.site }}</h5>
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check-circle"></i> Found
+                                                </span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="profile-url mb-2">
+                                            <code class="text-break">{{ site.url }}</code>
+                                        </div>
+                                        
+                                        <div class="d-flex justify-content-between align-items-center mt-3">
+                                            <a href="{{ site.url }}" target="_blank" class="visit-btn">
+                                                <i class="fas fa-external-link-alt"></i> Visit Profile
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('{{ site.url }}')">
+                                                <i class="fas fa-copy"></i> Copy
+                                            </button>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="no-results">
+                                <i class="fas fa-search fa-3x mb-3 text-muted"></i>
+                                <h4>No accounts found</h4>
+                                <p>The username "{{ results.username }}" was not found on any of the searched social networks.</p>
+                                <p class="text-muted">This could mean:</p>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check"></i> The username is available on most platforms</li>
+                                    <li><i class="fas fa-check"></i> The accounts might be private or deleted</li>
+                                    <li><i class="fas fa-check"></i> Try variations like adding numbers or underscores</li>
+                                </ul>
+                            </div>
+                        {% endif %}
+                        
+                    {% elif results.status == 'timeout' %}
+                        <div class="error-message">
+                            <i class="fas fa-clock"></i> <strong>Search Timeout</strong><br>
+                            The search took too long to complete. Please try again with a shorter username or check your internet connection.
+                        </div>
+                        
+                    {% elif results.status == 'error' %}
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-triangle"></i> <strong>Search Error</strong><br>
+                            {{ results.error }}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="text-center mt-5">
+                        <div class="developer-credit mb-3">
+                            <small class="text-muted">
+                                <i class="fas fa-code"></i> Developed by <strong>Swaraj Fugare</strong> 
+                                <a href="https://instagram.com/swaraj.fugare_23" target="_blank" class="text-decoration-none">
+                                    <i class="fab fa-instagram"></i> @swaraj.fugare_23
+                                </a>
+                            </small>
+                        </div>
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i> 
+                            SocialHunter searches across 400+ social networks. Results may vary based on site availability and privacy settings.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                // Show a temporary success message
+                const toast = document.createElement('div');
+                toast.className = 'toast align-items-center text-white bg-success border-0 position-fixed';
+                toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+                toast.innerHTML = `
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="fas fa-check"></i> URL copied to clipboard!
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                `;
+                document.body.appendChild(toast);
+                const bsToast = new bootstrap.Toast(toast);
+                bsToast.show();
+                
+                // Remove toast after it's hidden
+                toast.addEventListener('hidden.bs.toast', function() {
+                    toast.remove();
+                });
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+
+        // Add loading animation when visiting links
+        document.addEventListener('DOMContentLoaded', function() {
+            const visitButtons = document.querySelectorAll('.visit-btn');
+            visitButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const icon = this.querySelector('i');
+                    icon.className = 'fas fa-spinner fa-spin';
+                    setTimeout(() => {
+                        icon.className = 'fas fa-external-link-alt';
+                    }, 1000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
